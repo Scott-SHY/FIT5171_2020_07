@@ -7,12 +7,13 @@ import rockets.model.Launch;
 import rockets.model.LaunchServiceProvider;
 import rockets.model.Rocket;
 
-//import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+//import java.math.BigDecimal;
 
 public class RocketMiner {
     private static Logger logger = LoggerFactory.getLogger(RocketMiner.class);
@@ -31,7 +32,11 @@ public class RocketMiner {
      * @return the list of k most active rockets.
      */
     public List<Rocket> mostLaunchedRockets(int k) {
-        return Collections.emptyList();
+        logger.info("find most active " + k + " rockets");
+        Collection<Rocket> rockets = dao.loadAll(Rocket.class);
+        Collection<Launch> launches = dao.loadAll(Launch.class);
+        Comparator<Rocket> rocketComparator = (a, b) -> -a.getName().compareTo(b.getName());
+        return rockets.stream().sorted(rocketComparator).limit(k).collect(Collectors.toList());
     }
 
     /**
@@ -44,7 +49,10 @@ public class RocketMiner {
      * @return the list of k most reliable ones.
      */
     public List<LaunchServiceProvider> mostReliableLaunchServiceProviders(int k) {
-        return Collections.emptyList();
+        logger.info("find most reliable " + k +" launch service providers");
+        Collection<LaunchServiceProvider> launchServiceProviders = dao.loadAll(LaunchServiceProvider.class);
+        Comparator<LaunchServiceProvider> lspComparator = (a, b) -> -a.getId().compareTo(b.getId());
+        return launchServiceProviders.stream().sorted(lspComparator).limit(k).collect(Collectors.toList());
     }
 
     /**
@@ -69,7 +77,13 @@ public class RocketMiner {
      * @param orbit the orbit
      * @return the country who sends the most payload to the orbit
      */
-    public String dominantCountry(String orbit) { return null;}
+    public String dominantCountry(String orbit) {
+        logger.info("find country sends the most payload to " + orbit);
+        Collection<Rocket> rockets = dao.loadAll(Rocket.class);
+
+//        Comparator<Launch> launchComparator = (a, b) -> a.getPayload();
+        return null;
+    }
 
     /**
      * TODO: to be implemented & tested!
@@ -80,7 +94,10 @@ public class RocketMiner {
      * @return the list of k most expensive launches.
      */
     public List<Launch> mostExpensiveLaunches(int k) {
-        return Collections.emptyList();
+        logger.info("find most expensive " + k + " launch");
+        Collection<Launch> launches = dao.loadAll(Launch.class);
+        Comparator<Launch> launchPriceComparator = (a, b) -> -a.getPrice().compareTo(b.getPrice());
+        return launches.stream().sorted(launchPriceComparator).limit(k).collect(Collectors.toList());
     }
 
     /**

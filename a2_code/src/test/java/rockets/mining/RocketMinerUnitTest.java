@@ -12,6 +12,7 @@ import rockets.model.Launch;
 import rockets.model.LaunchServiceProvider;
 import rockets.model.Rocket;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,12 +56,20 @@ public class RocketMinerUnitTest {
         // index of rocket of each launch
         int[] rocketIndex = new int[]{0, 0, 0, 0, 1, 1, 1, 2, 2, 3};
 
+        // index of price of each launch
+        int[] priceIndex = new int[]{200000, 500000, 500000, 900000, 100000, 400000, 300000, 800000, 500000, 200000};
+
+        // index of payload of each launch
+        //String[] payloadIndex = new String[]{"100", "400", "300", "900", "100", "500", "500", "800", "400", "500"};
+
         // 10 launches
         launches = IntStream.range(0, 10).mapToObj(i -> {
             logger.info("create " + i + " launch in month: " + months[i]);
             Launch l = new Launch();
             l.setLaunchDate(LocalDate.of(2017, months[i], 1));
             l.setLaunchVehicle(rockets.get(rocketIndex[i]));
+            l.setPrice(BigDecimal.valueOf(priceIndex[i]));
+            l.setLaunchServiceProvider(rockets.get(rocketIndex[i]).getManufacturer());
             l.setLaunchSite("VAFB");
             l.setOrbit("LEO");
             spy(l);
@@ -76,6 +85,39 @@ public class RocketMinerUnitTest {
         List<Launch> sortedLaunches = new ArrayList<>(launches);
         sortedLaunches.sort((a, b) -> -a.getLaunchDate().compareTo(b.getLaunchDate()));
         List<Launch> loadedLaunches = miner.mostRecentLaunches(k);
+        assertEquals(k, loadedLaunches.size());
+        assertEquals(sortedLaunches.subList(0, k), loadedLaunches);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3})
+    public void shouldReturnTopMostLaunchedRockets(int k){
+        when(dao.loadAll(Rocket.class)).thenReturn(rockets);
+        List<Rocket> sortedRockets = new ArrayList<>(rockets);
+        sortedRockets.sort((a, b) -> -a.getName().compareTo(b.getName()));
+        List<Rocket> loadedRockets = miner.mostLaunchedRockets(k);
+        assertEquals(k, loadedRockets.size());
+        assertEquals(sortedRockets.subList(0, k), loadedRockets);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3})
+    public void shouldReturnTopMostReliableLsp(int k){
+        when(dao.loadAll(LaunchServiceProvider.class)).thenReturn(lsps);
+        List<LaunchServiceProvider> sortedLsps = new ArrayList<>(lsps);
+        sortedLsps.sort((a, b) -> -a.getId().compareTo(b.getId()));
+        List<LaunchServiceProvider> loadedLsps = miner.mostReliableLaunchServiceProviders(k);
+        assertEquals(k, loadedLsps.size());
+        assertEquals(sortedLsps.subList(0, k), loadedLsps);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3})
+    public void shouldReturnTopMostExpensiveLaunches(int k){
+        when(dao.loadAll(Launch.class)).thenReturn(launches);
+        List<Launch> sortedLaunches = new ArrayList<>(launches);
+        sortedLaunches.sort((a, b) -> -a.getPrice().compareTo(b.getPrice()));
+        List<Launch> loadedLaunches = miner.mostExpensiveLaunches(k);
         assertEquals(k, loadedLaunches.size());
         assertEquals(sortedLaunches.subList(0, k), loadedLaunches);
     }
