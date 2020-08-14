@@ -7,10 +7,8 @@ import rockets.model.Launch;
 import rockets.model.LaunchServiceProvider;
 import rockets.model.Rocket;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 //import java.math.BigDecimal;
@@ -32,11 +30,18 @@ public class RocketMiner {
      * @return the list of k most active rockets.
      */
     public List<Rocket> mostLaunchedRockets(int k) {
-        logger.info("find most active " + k + " rockets");
-        Collection<Rocket> rockets = dao.loadAll(Rocket.class);
         Collection<Launch> launches = dao.loadAll(Launch.class);
-        Comparator<Rocket> rocketComparator = (a, b) -> -a.getName().compareTo(b.getName());
-        return rockets.stream().sorted(rocketComparator).limit(k).collect(Collectors.toList());
+        List<Launch> launchList = new ArrayList<>(launches);
+        List<Rocket> sortedRockets = getSortedRocketsByLaunches(launchList);
+        List<Rocket> topRockets = new ArrayList<>();
+        int i = 0;
+        for (Rocket rocket : sortedRockets){
+            topRockets.add(rocket);
+            i++;
+            if(i >= k)
+                break;
+        }
+        return topRockets;
     }
 
     /**
@@ -49,10 +54,40 @@ public class RocketMiner {
      * @return the list of k most reliable ones.
      */
     public List<LaunchServiceProvider> mostReliableLaunchServiceProviders(int k) {
-        logger.info("find most reliable " + k +" launch service providers");
-        Collection<LaunchServiceProvider> launchServiceProviders = dao.loadAll(LaunchServiceProvider.class);
-        Comparator<LaunchServiceProvider> lspComparator = (a, b) -> -a.getId().compareTo(b.getId());
-        return launchServiceProviders.stream().sorted(lspComparator).limit(k).collect(Collectors.toList());
+        logger.info("find most Reliable LaunchServiceProviders  " + k + " launches");
+        Collection<LaunchServiceProvider> lsps = dao.loadAll(LaunchServiceProvider.class);
+        Collection<Launch> launches = dao.loadAll(Launch.class);
+        List<Launch> launchList = new ArrayList<>(launches);
+        List<LaunchServiceProvider> lspList = new ArrayList<>(lsps);
+        Map<LaunchServiceProvider, Double> lspMap = new LinkedHashMap<>();
+        double successfulLaunches=0.0;
+        double allLaunches=0.0;
+        // double failedLaunches=0;
+        for(LaunchServiceProvider launchServiceProvider : lspList)
+        {
+            for(Launch launch : launchList)
+            {
+                if(launch.getLaunchOutcome().equals(Launch.LaunchOutcome.SUCCESSFUL))
+                {
+                    successfulLaunches++;
+                }
+                allLaunches++;
+            }
+            if(allLaunches!=0) {
+                double ratio = successfulLaunches / allLaunches;
+                lspMap.put(launchServiceProvider, ratio);
+            }
+
+        }
+        Map<LaunchServiceProvider,Double> sortedLsp = lspMap.entrySet().stream()
+                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).limit(k)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
+                        LinkedHashMap::new));
+        List<LaunchServiceProvider> topLSP = new ArrayList<>();
+        for (LaunchServiceProvider lsp : sortedLsp.keySet()){
+            topLSP.add(lsp);
+        }
+        return topLSP;
     }
 
     /**
@@ -78,11 +113,39 @@ public class RocketMiner {
      * @return the country who sends the most payload to the orbit
      */
     public String dominantCountry(String orbit) {
-        logger.info("find country sends the most payload to " + orbit);
+        Collection<Launch> launches = dao.loadAll(Launch.class);
         Collection<Rocket> rockets = dao.loadAll(Rocket.class);
-
-//        Comparator<Launch> launchComparator = (a, b) -> a.getPayload();
-        return null;
+        List<Launch> launchList = new ArrayList<>(launches);
+        List<Rocket> rocketList = new ArrayList<>(rockets);
+        Map<String, Integer> countryMap = new HashMap<>();
+        for(Launch launch: launchList) {
+            if (launch.getOrbit().equals(orbit)) {
+                Rocket rocket = launch.getLaunchVehicle();
+                if (countryMap.containsKey(launch.getLaunchVehicle().getCountry())) {
+                    String country = rocket.getCountry();
+                    int   number_launches = countryMap.get(country);
+                    countryMap.put(country, ++number_launches);
+                }
+                else
+                {
+                    countryMap.put(rocket.getCountry(),1);
+                }
+            }
+        }
+        Map<String, Integer> sortedRocket = countryMap
+                .entrySet()
+                .stream()
+                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
+                        LinkedHashMap::new));
+        String topRockets = sortedRocket.toString();
+        System.out.println(topRockets);
+        //for (String country : sortedRocket.keySet()){
+        //topRockets.valueOf(country);
+        //}
+        Map.Entry<String,Integer> entry = countryMap.entrySet().iterator().next();
+        String country = entry.getKey();
+        return country;
     }
 
     /**
@@ -111,6 +174,72 @@ public class RocketMiner {
      * @return the list of k launch service providers who has the highest sales revenue.
      */
     public List<LaunchServiceProvider> highestRevenueLaunchServiceProviders(int k, int year) {
-        return Collections.emptyList();
+        logger.info("find top " + k + " highest sales in the year "+year);
+        Collection<Launch> launches = dao.loadAll(Launch.class);
+        // GROUP BY LAUNCH SERVICE PROVIDER WITH REVENUE AMOUNT
+        Map<LaunchServiceProvider, BigDecimal> mapByLsp = getRevenuePerLspInYear(launches,year);
+        // GET SORTED LIST OF LSPs
+        List<LaunchServiceProvider> sortedLsps = getSortedLspByRevenue(mapByLsp);
+        int i = 0;
+        List<LaunchServiceProvider> topKlsps = new ArrayList<>();
+        for (LaunchServiceProvider lsp : sortedLsps){
+            i++;
+            topKlsps.add(lsp);
+            if(i >= k)
+            { break;}
+        }
+        return topKlsps;
+    }
+
+    public static Map<LaunchServiceProvider, BigDecimal> getRevenuePerLspInYear(Collection<Launch> launches, int year){
+        // FILTER LAUNCHES PER YEAR
+        List<Launch> filteredLaunchList = launches.stream().filter(Launch -> Launch.getLaunchDate().getYear() == year).collect(Collectors.toList());
+        Map<LaunchServiceProvider, BigDecimal> mapByLsp = new HashMap<>();
+        for (Launch l : filteredLaunchList) {
+            if (mapByLsp.containsKey(l.getLaunchServiceProvider())){
+                BigDecimal bd = mapByLsp.get(l.getLaunchServiceProvider()).add(l.getPrice());
+                mapByLsp.put(l.getLaunchServiceProvider(),bd);
+            } else {
+                BigDecimal tmp = l.getPrice();
+                mapByLsp.put(l.getLaunchServiceProvider(),tmp);
+            }
+        }
+        return mapByLsp;
+    }
+
+    // Get List of LSP Sorted (descending) by the Revenue Amount
+    public static List<LaunchServiceProvider> getSortedLspByRevenue(Map<LaunchServiceProvider,BigDecimal> mapUnsorted){
+        Map<LaunchServiceProvider, BigDecimal> sortedLSP = mapUnsorted
+                .entrySet()
+                .stream()
+                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
+                        LinkedHashMap::new));
+        return new ArrayList<>(sortedLSP.keySet());
+    }
+
+
+    public static List<Rocket> getSortedRocketsByLaunches (List<Launch> listLaunches){
+        Map<Rocket,Integer> mapRockets = new HashMap<>();
+        for (Launch launch: listLaunches){
+            Rocket rocket = launch.getLaunchVehicle();
+            if (mapRockets.containsKey(rocket)){
+                int number_launches = mapRockets.get(rocket);
+                mapRockets.put(rocket,++number_launches);
+            } else {
+                mapRockets.put(rocket,1);
+            }
+        }
+        Map<Rocket, Integer> sortedRocket = mapRockets
+                .entrySet()
+                .stream()
+                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
+                        LinkedHashMap::new));
+        List<Rocket> topRockets = new ArrayList<>();
+        for (Rocket rocket : sortedRocket.keySet()){
+            topRockets.add(rocket);
+        }
+        return topRockets;
     }
 }
