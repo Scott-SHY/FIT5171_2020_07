@@ -277,23 +277,36 @@ public class App {
 
     // TODO: Need to TDD this
     private static void handleGetRocketById() {
-//        get("/rocket/:id", (req, res) ->{
-//            Map<String, Object> attributes = new HashMap<>();
-//
-//        },new FreeMarkerEngine());
+        get("/rocket/:id", (req, res) ->{
+            Map<String, Object> attributes = new HashMap<>();
+            Rocket rocket = new Rocket();
+            attributes.put("rocket", rocket);
+            try {
+                String id = req.params(":id");
+                Rocket newRocket = dao.load(Rocket.class, Long.parseLong(id));
+                if (null != newRocket){
+                    attributes.put("rocket", newRocket);
+                } else {
+                    attributes.put("errorMsg", "No rocket with the ID " + id + ".");
+                }
+                return new ModelAndView(attributes, "rocket.html.ftl");
+            } catch (Exception e){
+                return handleException(res, attributes, e, "rocket.html.ftl");
+            }
+        },new FreeMarkerEngine());
     }
 
     // TODO: Need to TDD this
     private static void handlePostCreateRocket() {
         post("/rocket/create", (req, res) -> {
             Map<String, Object> attributes = new HashMap<>();
-            String name = req.queryParams("rocketName");
+            String name = req.queryParams("name");
             String country = req.queryParams("country");
-            String massToLEO = req.queryParams("massToLEO");
+            int firstYearFlight = Integer.parseInt(req.queryParams("firstYearFlight"));
 
             attributes.put("name", name);
             attributes.put("country", country);
-            attributes.put("massToLEO", massToLEO);
+            attributes.put("firstYearFlight", firstYearFlight);
 
             logger.info("Create Rocket " + name);
 
@@ -302,13 +315,13 @@ public class App {
                 rocket = new Rocket();
                 rocket.setName(name);
                 rocket.setCountry(country);
-                rocket.setMassToLEO(massToLEO);
+                rocket.setFirstYearFlight(firstYearFlight);
                 dao.createOrUpdate(rocket);
 
                 res.status(301);
                 req.session(true);
                 req.session().attribute("rocket",rocket);
-                res.redirect("/rockets");
+                res.redirect("/");
                 return new ModelAndView(attributes, "rockets.html.ftl");
             } catch (Exception e){
                 return handleException(res, attributes, e, "create_rocket.html.ftl");
@@ -332,7 +345,7 @@ public class App {
 
     private static void handleGetRockets() {
         get("/rockets", (req, res) -> {
-            Map<String, Object> attributes = new HashMap<>();
+            Map<String, Object> attributes = new HashMap<String, Object>();
             try {
                 attributes.put("rockets", dao.loadAll(Rocket.class));
                 return new ModelAndView(attributes, "rockets.html.ftl");

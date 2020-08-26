@@ -24,7 +24,7 @@
     <p>Rocket details:</p>
     <ul>
         <li>Name: ${rocket.name}</li>
-        <li>Manufacturer: <a href="lsp/${rocket.manufacturer.id}">${rocket.manufacturer.name}</a></li>
+<#--        <li>Manufacturer: <a href="lsp/${rocket.manufacturer.id}">${rocket.manufacturer.name}</a></li>-->
         <li>Country: ${rocket.country}</li>
         <li>First flown: ${rocket.firstYearFlight}</li>
     </ul>
