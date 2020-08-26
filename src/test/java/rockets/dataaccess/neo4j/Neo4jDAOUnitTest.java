@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -14,6 +15,7 @@ import rockets.model.LaunchServiceProvider;
 import rockets.model.Rocket;
 import rockets.model.User;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Set;
@@ -22,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class Neo4jDAOUnitTest {
+    private static final String TEST_DB = "target/test-data/test-db";
+
     private DAO dao;
     private Session session;
     private SessionFactory sessionFactory;
@@ -32,12 +36,18 @@ public class Neo4jDAOUnitTest {
 
     @BeforeAll
     public void initializeNeo4j() {
-        ServerControls embeddedDatabaseServer = TestServerBuilders.newInProcessBuilder().newServer();
-        GraphDatabaseService dbService = embeddedDatabaseServer.graph();
-        EmbeddedDriver driver = new EmbeddedDriver(dbService);
+        EmbeddedDriver driver = createEmbeddedDriver(TEST_DB);
+
         sessionFactory = new SessionFactory(driver, User.class.getPackage().getName());
         session = sessionFactory.openSession();
-        dao = new Neo4jDAO(session);
+        dao = new Neo4jDAO(sessionFactory);
+
+//        ServerControls embeddedDatabaseServer = TestServerBuilders.newInProcessBuilder().newServer();
+//        GraphDatabaseService dbService = embeddedDatabaseServer.graph();
+//        EmbeddedDriver driver = new EmbeddedDriver(dbService);
+//        sessionFactory = new SessionFactory(driver, User.class.getPackage().getName());
+//        session = sessionFactory.openSession();
+//        dao = new Neo4jDAO(session);
     }
 
     @BeforeEach
@@ -45,6 +55,16 @@ public class Neo4jDAOUnitTest {
         esa = new LaunchServiceProvider("ESA", 1970, "Europe");
         spacex = new LaunchServiceProvider("SpaceX", 2002, "USA");
         rocket = new Rocket("F9", "USA", spacex);
+    }
+
+    private static EmbeddedDriver createEmbeddedDriver(String fileDir) {
+        File file = new File(fileDir);
+        Configuration configuration = new Configuration.Builder()
+                .uri(file.toURI().toString()) // For Embedded
+                .build();
+        EmbeddedDriver driver = new EmbeddedDriver();
+        driver.configure(configuration);
+        return driver;
     }
 
     @Test
@@ -165,6 +185,23 @@ public class Neo4jDAOUnitTest {
         dao.delete(rocket);
         assertTrue(dao.loadAll(Rocket.class).isEmpty());
         assertFalse(dao.loadAll(LaunchServiceProvider.class).isEmpty());
+    }
+
+    @Test
+    public void shouldSaveARocketBeforeALSPDoesAcrossSessionsNotCreateDuplicateRockets() {
+        assertEquals(spacex, rocket.getManufacturer());
+        spacex.getRockets().add(rocket);
+        dao.createOrUpdate(spacex);
+        assertEquals(1, dao.loadAll(Rocket.class).size());
+
+        dao.close();
+
+        initializeNeo4j();
+
+        rocket.setId(null);
+        spacex.setId(null);
+        dao.createOrUpdate(spacex);
+        assertEquals(1, dao.loadAll(Rocket.class).size());
     }
 
     @AfterEach

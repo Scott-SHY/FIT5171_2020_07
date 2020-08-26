@@ -1,37 +1,42 @@
 package rockets.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Sets;
+import org.neo4j.ogm.annotation.CompositeIndex;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Relationship;
+
 import static org.apache.commons.lang3.Validate.notNull;
 import static org.apache.commons.lang3.Validate.notBlank;
+import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
+
 import java.util.Objects;
 import java.util.Set;
 
+@NodeEntity
+@CompositeIndex(properties = {"name", "yearFounded", "country"}, unique = true)
 public class LaunchServiceProvider extends Entity {
 
-    public void setName(String name) {
-        notBlank(name, "name can not be null or empty");
-        this.name = name;
-    }
-
+    @Property(name = "name")
     private String name;
 
-    public void setYearFounded(int yearFounded) {
-        notNull(yearFounded);
-        this.yearFounded = yearFounded;
-    }
-
+    @Property(name = "yearFounded")
     private int yearFounded;
 
-    public void setCountry(String country) {
-        notBlank(country, "country can not be null or empty");
-        this.country = country;
-    }
-
+    @Property(name = "country")
     private String country;
 
+    @Property(name = "headquarters")
     private String headquarters;
 
+    @Relationship(type = "MANUFACTURES", direction= OUTGOING)
+    @JsonIgnore
     private Set<Rocket> rockets;
+
+    public LaunchServiceProvider() {
+        super();
+    }
 
     public LaunchServiceProvider(String name, int yearFounded, String country) {
         notNull(name);
@@ -44,12 +49,27 @@ public class LaunchServiceProvider extends Entity {
         rockets = Sets.newLinkedHashSet();
     }
 
+    public void setName(String name) {
+        notBlank(name, "name can not be null or empty");
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }
 
+    public void setYearFounded(int yearFounded) {
+        notNull(yearFounded);
+        this.yearFounded = yearFounded;
+    }
+
     public int getYearFounded() {
         return yearFounded;
+    }
+
+    public void setCountry(String country) {
+        notBlank(country, "country can not be null or empty");
+        this.country = country;
     }
 
     public String getCountry() {
