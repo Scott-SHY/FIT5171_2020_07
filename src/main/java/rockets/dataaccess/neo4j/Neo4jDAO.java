@@ -135,6 +135,16 @@ public class Neo4jDAO implements DAO {
     }
 
     @Override
+    public LaunchServiceProvider getLspByName(String name) {
+        Collection<LaunchServiceProvider> lsps = session.loadAll(LaunchServiceProvider.class, new Filter("name", EQUALS, name));
+        if (null == lsps || lsps.isEmpty()){
+            return null;
+        } else {
+            return lsps.iterator().next();
+        }
+    }
+
+    @Override
     public void close() {
         sessionFactory.close();
     }

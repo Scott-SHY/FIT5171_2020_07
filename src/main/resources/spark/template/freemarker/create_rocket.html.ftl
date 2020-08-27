@@ -1,8 +1,8 @@
-<#-- @ftlvariable name="manufactuere" type="java.lang.String" -->
 <#-- @ftlvariable name="country" type="java.lang.String" -->
 <#-- @ftlvariable name="name" type="java.lang.String" -->
 <#-- @ftlvariable name="firstYearFlight" type="int" -->
 <#-- @ftlvariable name="errorMsg" type="java.lang.String" -->
+<#-- @ftlvariable name="manufacturer" type="java.util.Collection<rockets.model.LaunchServiceProvider>" -->
 
 
 <!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -26,7 +26,7 @@
 <div>
     <p>* Fields are required.</p>
 </div>
-<form name="create_event" action="/rocket/create" method="POST">
+<form name="create_event" action="/rockets/create" method="POST">
     <div id="admin_left_pane" class="fieldset_without_border">
         <div><p>Rocket Details</p></div>
         <ol>
@@ -38,8 +38,9 @@
                 <label for="manufacturer" class="bold">Manufacturer:</label>
                 <select id="manufacturer" name="manufacturer">
                     <option>---Select---</option>
-                    <option value="SpaceX">SpaceX</option>
-                    <option value="Sea Launch">Sea Launch</option>
+                    <#list manufacturer as lsp>
+                        <option value="${lsp.name}">${lsp.name}</option>
+                    </#list>
                 </select>
             </li>
             <#--            <li>-->

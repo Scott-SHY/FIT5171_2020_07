@@ -1,6 +1,7 @@
 package rockets.mining;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -98,6 +99,12 @@ public class RocketMinerUnitTest {
             spy(l);
             return l;
         }).collect(Collectors.toList());
+
+        rockets.get(0).setLaunches(Sets.newHashSet(launches.subList(0, 4)));
+        rockets.get(1).setLaunches(Sets.newHashSet(launches.subList(4, 7)));
+        rockets.get(2).setLaunches(Sets.newHashSet(launches.subList(7, 9)));
+        rockets.get(3).setLaunches(Sets.newHashSet(launches.get(9)));
+
     }
 
 

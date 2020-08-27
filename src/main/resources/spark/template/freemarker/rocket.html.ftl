@@ -25,9 +25,11 @@
     <ul>
         <li>Name: ${rocket.name}</li>
 <#--        <li>Manufacturer: <a href="lsp/${rocket.manufacturer.id}">${rocket.manufacturer.name}</a></li>-->
+        <li>Manufacturer: ${rocket.manufacturer.name}</li>
         <li>Country: ${rocket.country}</li>
         <li>First flown: ${rocket.firstYearFlight}</li>
     </ul>
+    <p><a href="/rockets">Back</a></p>
 </#if>
 
 </div>

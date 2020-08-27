@@ -26,10 +26,11 @@
             </#list>
 
         </ul>
+        <p>Create new <a href="/rockets/create">Rocket</a></p>
     <#else>
-        <p>No rocket yet in the system. <a href="/rocket/create">Create one</a> now!</p>
+        <p>No rocket yet in the system. <a href="/rockets/create">Create one</a> now!</p>
     </#if>
-
+    <p><a href="/">Back</a></p>
 </div>
 
 </body>

@@ -29,7 +29,7 @@
 <#else>
     <p>Nobody in the system. <a href="/register">Register</a> now!</p>
 </#if>
-
+    <p><a href="/">Back</a></p>
 </div>
 
 </body>

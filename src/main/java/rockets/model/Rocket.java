@@ -78,7 +78,6 @@ public class Rocket extends Entity {
     }
 
     public LaunchServiceProvider getManufacturer() {
-        notNull(manufacturer);
         return manufacturer;
     }
 
@@ -135,6 +134,10 @@ public class Rocket extends Entity {
 
     public void setLaunches(Set<Launch> launches) {
         this.launches = launches;
+    }
+
+    public void setManufacturer(LaunchServiceProvider manufacturer) {
+        this.manufacturer = manufacturer;
     }
 
     @Override

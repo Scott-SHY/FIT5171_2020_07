@@ -112,8 +112,8 @@ public class AppSystemTest {
         );
     }
 
- //   @Test
-  /*  public void shouldNotRecreateUser() {
+    @Test
+    public void shouldNotRecreateUser() {
         JWebUnit.beginAt("/");
         JWebUnit.gotoPage("register");
         JWebUnit.assertTextPresent("User Registration");
@@ -140,7 +140,7 @@ public class AppSystemTest {
         JWebUnit.submit();
 
         JWebUnit.assertTextNotPresent("Welcome back: Jane Who!");
-    }*/
+    }
 
     @Test
     public void shouldHaveWelcomeInBasePage() {
