@@ -144,11 +144,7 @@ public class App {
             return new ModelAndView(attributes, "register.html.ftl");
         }, new FreeMarkerEngine());
     }
-
-
-    /**
-     * TODO: a serious bug in this method. Fix it (and test to verify)!
-     */
+    
     // register new user
     // fix the serious bug, check if user exist
     private static void handlePostRegister() {
@@ -300,7 +296,6 @@ public class App {
         }, new FreeMarkerEngine());
     }
 
-    // TODO: Need to TDD this
     private static void handleGetRocketById() {
         get("/rocket/:id", (req, res) ->{
             Map<String, Object> attributes = new HashMap<>();
@@ -321,7 +316,6 @@ public class App {
         },new FreeMarkerEngine());
     }
 
-    // TODO: Need to TDD this
     private static void handlePostCreateRocket() {
         post("/rockets/create", (req, res) -> {
             Map<String, Object> attributes = new HashMap<>();
@@ -339,6 +333,12 @@ public class App {
             logger.info("Create Rocket " + name);
 
             Rocket rocket;
+            rocket = dao.getRocketByName(name);
+            if (rocket != null){
+                attributes.put("errorMsg", "Rocket has exist");
+                return new ModelAndView(attributes, "create_rocket.html.ftl");
+            }
+
             try {
                 rocket = new Rocket();
                 rocket.setName(name);
@@ -359,7 +359,6 @@ public class App {
         }, new FreeMarkerEngine());
     }
 
-    // TODO: Need to TDD this
     private static void handleGetCreateRocket() {
         get("/rockets/create", (req, res) -> {
             Map<String, Object> attributes = new HashMap<>();
@@ -422,6 +421,11 @@ public class App {
             logger.info("Create LaunchServiceProvider " + name);
 
             LaunchServiceProvider lsp;
+            lsp = dao.getLspByName(name);
+            if (lsp != null){
+                attributes.put("errorMsg", "Launch Service Provider has exist");
+                return new ModelAndView(attributes, "create_lsp.html.ftl");
+            }
             try {
                 lsp = new LaunchServiceProvider();
                 lsp.setName(name);

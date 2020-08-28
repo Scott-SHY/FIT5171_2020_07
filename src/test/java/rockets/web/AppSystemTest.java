@@ -143,6 +143,17 @@ public class AppSystemTest {
     }
 
     @Test
+    public void shouldNotRecreateRocket(){
+        JWebUnit.beginAt("/");
+        JWebUnit.gotoPage("rockets/create");
+        JWebUnit.assertTextPresent("Rocket Creation");
+
+        JWebUnit.setTextField("name","Falcon9");
+        JWebUnit.setTextField("country","USA");
+        JWebUnit.setTextField("firstYearFlight","2015");
+    }
+
+    @Test
     public void shouldHaveWelcomeInBasePage() {
         String path = "/";
         JWebUnit.beginAt(path);

@@ -60,6 +60,7 @@ public class Neo4jDAO implements DAO {
             entity.setId(existingEntity.getId());
         }
         Transaction tx = session.beginTransaction();
+        saveOutgoingEntities(entity, clazz);
         session.save(entity);
         tx.commit();
         return entity;
@@ -141,6 +142,16 @@ public class Neo4jDAO implements DAO {
             return null;
         } else {
             return lsps.iterator().next();
+        }
+    }
+
+    @Override
+    public Rocket getRocketByName(String name) {
+        Collection<Rocket> rockets = session.loadAll(Rocket.class, new Filter("name", EQUALS, name));
+        if (null == rockets || rockets.isEmpty()){
+            return null;
+        } else {
+            return rockets.iterator().next();
         }
     }
 
