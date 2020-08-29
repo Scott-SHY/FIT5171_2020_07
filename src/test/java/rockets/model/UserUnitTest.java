@@ -74,14 +74,14 @@ public class UserUnitTest {
     public void shouldThrowExceptionWhenSetFirstNameToEmpty(String firstName) {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> target.setFirstName(firstName));
-        assertEquals("first name cannot be null or emtpy", exception.getMessage());
+        assertEquals("first name cannot be null or empty", exception.getMessage());
     }
 
     @DisplayName("should throw exception when pass null to setFirstName function")
     @Test
     public void shouldThrowExceptionWhenSetFirstNameToNull() {
         NullPointerException exception = assertThrows(NullPointerException.class, () -> target.setFirstName(null));
-        assertEquals("first name cannot be null or emtpy", exception.getMessage());
+        assertEquals("first name cannot be null or empty", exception.getMessage());
     }
 
     @DisplayName("should throw exception when pass a empty last name to setLastName function")

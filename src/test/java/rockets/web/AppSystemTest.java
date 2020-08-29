@@ -142,15 +142,118 @@ public class AppSystemTest {
         JWebUnit.assertTextNotPresent("Welcome back: Jane Who!");
     }
 
-    @Test
-    public void shouldNotRecreateRocket(){
-        JWebUnit.beginAt("/");
-        JWebUnit.gotoPage("rockets/create");
-        JWebUnit.assertTextPresent("Rocket Creation");
+//    @Test
+//    public void shouldNotRecreateRocket(){
+//        JWebUnit.beginAt("/");
+//
+//        JWebUnit.gotoPage("lsps/create");
+//        JWebUnit.assertTextPresent("Launch Service Provider Creation");
+//
+//        JWebUnit.setTextField("name", "SpaceX");
+//        JWebUnit.setTextField("yearFounded", "2002");
+//        JWebUnit.setTextField("country", "USA");
+//        JWebUnit.setTextField("headquarters", "California");
+//
+//        JWebUnit.submit();
+//
+//        JWebUnit.gotoPage("rockets/create");
+//        JWebUnit.assertTextPresent("Rocket Creation");
+//
+//        JWebUnit.setTextField("name", "Falcon9");
+//        JWebUnit.setTextField("manufacturer", "SpaceX");
+//        JWebUnit.selectOptionByValue("manufacturer","SpaceX");
+//
+//        JWebUnit.setTextField("country", "USA");
+//        JWebUnit.setTextField("firstYearFlight", "2020");
+//
+//        JWebUnit.submit();
+//
+//        JWebUnit.gotoPage("rockets/create");
+//        JWebUnit.assertTextPresent("Rocket Creation");
+//
+//        JWebUnit.setTextField("name", "Falcon9");
+//        JWebUnit.setTextField("manufacturer", "SpaceX");
+//        JWebUnit.selectOptionByValue("manufacturer","SpaceX");
+//        JWebUnit.setTextField("country", "USA");
+//        JWebUnit.setTextField("firstYearFlight", "2020");
+//
+//        JWebUnit.submit();
+//
+//        JWebUnit.assertTextPresent("Rocket has exist");
+//    }
 
-        JWebUnit.setTextField("name","Falcon9");
-        JWebUnit.setTextField("country","USA");
-        JWebUnit.setTextField("firstYearFlight","2015");
+    @Test
+    public void shouldNotRecreateLsp(){
+        JWebUnit.beginAt("/");
+        JWebUnit.gotoPage("lsps/create");
+        JWebUnit.assertTextPresent("Launch Service Provider Creation");
+
+        JWebUnit.setTextField("name", "SpaceX");
+        JWebUnit.setTextField("yearFounded", "2002");
+        JWebUnit.setTextField("country", "USA");
+        JWebUnit.setTextField("headquarters", "California");
+
+        JWebUnit.submit();
+
+        JWebUnit.gotoPage("lsps/create");
+        JWebUnit.assertTextPresent("Launch Service Provider Creation");
+
+        JWebUnit.setTextField("name", "SpaceX");
+        JWebUnit.setTextField("yearFounded", "2002");
+        JWebUnit.setTextField("country", "USA");
+        JWebUnit.setTextField("headquarters", "California");
+
+        JWebUnit.submit();
+
+        JWebUnit.assertTextPresent("Launch Service Provider has exist");
+    }
+
+    @Test
+    public void shouldListUsers(){
+        JWebUnit.beginAt("/");
+        JWebUnit.gotoPage("users");
+        JWebUnit.assertTextPresent("User Listing Page");
+    }
+
+    @Test
+    public void shouldListRockets(){
+        JWebUnit.beginAt("/");
+        JWebUnit.gotoPage("rockets");
+        JWebUnit.assertTextPresent("Rocket Listing Page");
+    }
+
+    @Test
+    public void shouldListLsps(){
+        JWebUnit.beginAt("/");
+        JWebUnit.gotoPage("lsps");
+        JWebUnit.assertTextPresent("Launch Service Providers Listing Page");
+    }
+
+    @Test
+    public void shouldWelcomeUser(){
+        JWebUnit.beginAt("/");
+        JWebUnit.gotoPage("register");
+        JWebUnit.assertTextPresent("User Registration");
+
+        JWebUnit.setTextField("email", "570090885@qq.com");
+        JWebUnit.setTextField("password", "05764260752");
+        JWebUnit.setTextField("firstName", "Hangyu");
+        JWebUnit.setTextField("lastName", "Shao");
+
+        JWebUnit.submit();
+
+        JWebUnit.assertTextPresent("Welcome back: Hangyu Shao!");
+
+        JWebUnit.clickLinkWithExactText("Logout");
+
+        JWebUnit.gotoPage("login");
+        JWebUnit.assertTextPresent("User Login");
+
+        JWebUnit.setTextField("user_name","570090885@qq.com");
+        JWebUnit.setTextField("password","05764260752");
+        JWebUnit.submit();
+
+        JWebUnit.assertTextPresent("Welcome back: Hangyu Shao!");
     }
 
     @Test

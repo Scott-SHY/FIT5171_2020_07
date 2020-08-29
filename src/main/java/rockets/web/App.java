@@ -144,7 +144,7 @@ public class App {
             return new ModelAndView(attributes, "register.html.ftl");
         }, new FreeMarkerEngine());
     }
-    
+
     // register new user
     // fix the serious bug, check if user exist
     private static void handlePostRegister() {
