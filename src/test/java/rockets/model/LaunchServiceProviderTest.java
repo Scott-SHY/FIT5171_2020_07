@@ -27,7 +27,7 @@ class LaunchServiceProviderTest {
         assertFalse(num>=1970 && num<=2020);
     }
 
-    @DisplayName("should throw exception when country not China")
+    @DisplayName("should throw exception when country not China!")
     @ParameterizedTest
     @ValueSource(strings = {"England","USA"})
     public void shouldThrowExceptionWhenCountryNotChina(String country){
@@ -36,7 +36,7 @@ class LaunchServiceProviderTest {
         assertFalse(target.equals(lsp));
     }
 
-    @DisplayName("should throw exception when pass a empty to setName function")
+    @DisplayName("should throw exception when pass a empty to setName function!")
     @ParameterizedTest
     @ValueSource(strings = {"", " ", "  "})
     public void shouldThrowExceptionWhenSetNameToEmpty(String name) {
@@ -44,14 +44,14 @@ class LaunchServiceProviderTest {
         assertEquals("name can not be null or empty", exception.getMessage());
     }
 
-    @DisplayName("should throw exception when pass null to setName function")
+    @DisplayName("should throw exception when pass null to setName function!")
     @Test
     public void shouldThrowExceptionWhenSetNameToNull(){
         NullPointerException exception = assertThrows(NullPointerException.class, () -> target.setName(null));
         assertEquals("name can not be null or empty",exception.getMessage());
     }
 
-    @DisplayName("should throw exception when pass a empty to setCountry function")
+    @DisplayName("should throw exception when pass a empty to setCountry function!")
     @ParameterizedTest
     @ValueSource(strings = {"", " ", "  "})
     public void shouldThrowExceptionWhenSetCountryToEmpty(String country) {
@@ -59,7 +59,7 @@ class LaunchServiceProviderTest {
         assertEquals("country can not be null or empty", exception.getMessage());
     }
 
-    @DisplayName("should throw exception when pass null to setCountry function")
+    @DisplayName("should throw exception when pass null to setCountry function!")
     @Test
     public void shouldThrowExceptionWhenSetCountryToNull(){
         NullPointerException exception = assertThrows(NullPointerException.class, () -> target.setCountry(null));
